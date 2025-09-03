@@ -15,6 +15,8 @@ fn simulate(obj: &mut Vec<Particle>) -> bool {
     for p in &mut *obj {
         p.step();
 
+        // circle box collisions for closed system
+
         if p.pos.x + p.rad > WIDTH as f32 {
             p.pos.x = WIDTH as f32 - p.rad;
             p.vel.x *= -1.0;
@@ -36,10 +38,10 @@ fn simulate(obj: &mut Vec<Particle>) -> bool {
         }
     }
 
-    for i in 0..obj.len() {        
+    for i in 0..obj.len() {
         for j in i..obj.len() {
             if i == j {
-                continue;
+                continue; // avoid collisions with self
             }
 
             let ds = obj[j].pos - obj[i].pos;
@@ -99,16 +101,18 @@ fn main() {
         .build();
 
     let mut paused = false;
-    let mut counter = 0;
+    let mut counter = 0; // frame counting for debugging
 
     while !rl.window_should_close() {
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
-            paused ^= true;
+            paused ^= true; // toggle pause
         }
 
-        if rl.is_key_pressed(KeyboardKey::KEY_RIGHT) {
-            simulate(&mut obj);
+        // step debugger
+        if rl.is_key_pressed(KeyboardKey::KEY_RIGHT) && paused {
+            simulate(&mut obj); // step between each frame
 
+            // print debug information
             println!("\n[{counter}]");
             let mut energy = 0.0;
             for p in &obj {
